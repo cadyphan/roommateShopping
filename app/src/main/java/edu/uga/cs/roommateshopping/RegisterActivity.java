@@ -11,6 +11,12 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 public class RegisterActivity extends AppCompatActivity {
     private static final String DEBUG_TAG = "Register";
 
@@ -46,13 +52,12 @@ public class RegisterActivity extends AppCompatActivity {
                                         "Registered user: " + email,
                                         Toast.LENGTH_SHORT).show();
 
-                                // Sign in success, update UI with the signed-in user's information
                                 Log.d(DEBUG_TAG, "createUserWithEmail: success");
 
                                 FirebaseUser user = firebaseAuth.getCurrentUser();
 
-                                Intent intent = new Intent(RegisterActivity.this, JobLeadManagementActivity.class);
-                                startActivity(intent);
+                                //Intent intent = new Intent(RegisterActivity.this, JobLeadManagementActivity.class);
+                                //startActivity(intent);
 
                             } else {
                                 Log.w(DEBUG_TAG, "createUserWithEmail: failure", task.getException());
