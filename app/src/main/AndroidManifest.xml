@@ -25,6 +25,9 @@
             android:name=".RegisterActivity"
             android:parentActivityName=".MainActivity"
         />
+        <activity android:name=".ShoppingListActivity"
+            android:parentActivityName=".MainActivity"
+            />
     </application>
 
 </manifest>
