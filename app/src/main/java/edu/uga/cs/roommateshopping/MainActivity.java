@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity
     private class SignInButtonClickListener implements View.OnClickListener {
         @Override
         public void onClick( View v ) {
-            DialogFragment newFragment = new SigninDialogFragment();
+            SigninDialogFragment newFragment = new SigninDialogFragment();
             newFragment.show( getSupportFragmentManager(), null );
         }
     }
