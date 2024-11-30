@@ -1,7 +1,10 @@
 package edu.uga.cs.roommateshopping;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -17,13 +20,10 @@ import java.util.HashMap;
 public class ShoppingListActivity extends AppCompatActivity {
 
     private RecyclerView shoppingListRecyclerView;
-    private RecyclerView shoppingBasketRecyclerView;
 
     private ShoppingListAdapter shoppingListAdapter;
-    private ShoppingListAdapter shoppingBasketAdapter;
-
     private ArrayList<HashMap<String, String>> shoppingList;
-    private ArrayList<HashMap<String, String>> shoppingBasket;
+    private static ArrayList<HashMap<String, String>> shoppingBasket; // Shared with ShoppingCartActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,11 +31,12 @@ public class ShoppingListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_shopping_list);
 
         shoppingListRecyclerView = findViewById(R.id.shoppingListRecyclerView);
-        shoppingBasketRecyclerView = findViewById(R.id.shoppingBasketRecyclerView);
 
         // Initialize shopping list and basket
         shoppingList = new ArrayList<>();
-        shoppingBasket = new ArrayList<>();
+        if (shoppingBasket == null) {
+            shoppingBasket = new ArrayList<>();
+        }
 
         // Set up RecyclerView for shopping list
         shoppingListAdapter = new ShoppingListAdapter(shoppingList, new ShoppingListAdapter.OnItemClickListener() {
@@ -51,35 +52,31 @@ public class ShoppingListActivity extends AppCompatActivity {
 
             @Override
             public void onMarkAsPurchased(int position) {
-                markItemAsPurchased(position);
+                moveToCart(position);
             }
         });
 
         shoppingListRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         shoppingListRecyclerView.setAdapter(shoppingListAdapter);
 
-        // Set up RecyclerView for shopping basket
-        shoppingBasketAdapter = new ShoppingListAdapter(shoppingBasket, new ShoppingListAdapter.OnItemClickListener() {
-            @Override
-            public void onEdit(int position) {
-                Toast.makeText(ShoppingListActivity.this, "Editing items in the basket is not allowed.", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onDelete(int position) {
-                deleteItemFromShoppingBasket(position);
-            }
-
-            @Override
-            public void onMarkAsPurchased(int position) {
-                Toast.makeText(ShoppingListActivity.this, "Item is already in the basket.", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        shoppingBasketRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        shoppingBasketRecyclerView.setAdapter(shoppingBasketAdapter);
-
         findViewById(R.id.addItemButton).setOnClickListener(v -> showAddItemDialog());
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.shopping_list_menu, menu); // Inflate the menu
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_cart) {
+            // Navigate to ShoppingCartActivity
+            Intent intent = new Intent(this, ShoppingCartActivity.class);
+            startActivity(intent);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void showAddItemDialog() {
@@ -99,14 +96,10 @@ public class ShoppingListActivity extends AppCompatActivity {
                         return;
                     }
 
-                    if (isDuplicateItem(itemName, shoppingList)) {
-                        Toast.makeText(this, "Item already exists in the shopping list.", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-
                     HashMap<String, String> newItem = new HashMap<>();
                     newItem.put("name", itemName);
                     newItem.put("quantity", itemQuantity.isEmpty() ? "1" : itemQuantity);
+                    newItem.put("price", ""); // Default price
 
                     shoppingList.add(newItem);
                     shoppingListAdapter.notifyItemInserted(shoppingList.size() - 1);
@@ -141,11 +134,6 @@ public class ShoppingListActivity extends AppCompatActivity {
                         return;
                     }
 
-                    if (!currentItem.get("name").equals(updatedName) && isDuplicateItem(updatedName, shoppingList)) {
-                        Toast.makeText(this, "Item already exists in the shopping list.", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-
                     currentItem.put("name", updatedName);
                     currentItem.put("quantity", updatedQuantity.isEmpty() ? "1" : updatedQuantity);
 
@@ -162,37 +150,16 @@ public class ShoppingListActivity extends AppCompatActivity {
         Toast.makeText(this, "Item removed from shopping list", Toast.LENGTH_SHORT).show();
     }
 
-    private void markItemAsPurchased(int position) {
-        HashMap<String, String> purchasedItem = shoppingList.get(position);
-
-        shoppingBasket.add(purchasedItem);
-        shoppingBasketAdapter.notifyItemInserted(shoppingBasket.size() - 1);
-
+    private void moveToCart(int position) {
+        HashMap<String, String> item = shoppingList.get(position);
+        shoppingBasket.add(item);
         shoppingList.remove(position);
         shoppingListAdapter.notifyItemRemoved(position);
-
-        Toast.makeText(this, "Item moved to shopping basket", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Item moved to cart", Toast.LENGTH_SHORT).show();
     }
 
-    private void deleteItemFromShoppingBasket(int position) {
-        HashMap<String, String> removedItem = shoppingBasket.get(position);
-
-        shoppingList.add(removedItem);
-        shoppingListAdapter.notifyItemInserted(shoppingList.size() - 1);
-
-        shoppingBasket.remove(position);
-        shoppingBasketAdapter.notifyItemRemoved(position);
-
-        Toast.makeText(this, "Item moved back to shopping list", Toast.LENGTH_SHORT).show();
-    }
-
-    private boolean isDuplicateItem(String itemName, ArrayList<HashMap<String, String>> list) {
-        for (HashMap<String, String> item : list) {
-            if (item.get("name").equalsIgnoreCase(itemName)) {
-                return true;
-            }
-        }
-        return false;
+    public static ArrayList<HashMap<String, String>> getShoppingBasket() {
+        return shoppingBasket;
     }
 }
 
