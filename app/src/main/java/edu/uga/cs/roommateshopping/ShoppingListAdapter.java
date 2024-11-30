@@ -14,8 +14,14 @@ import java.util.HashMap;
 
 public class ShoppingListAdapter extends RecyclerView.Adapter<ShoppingListAdapter.ViewHolder> {
 
-    private final ArrayList<HashMap<String, String>> items;
+  //  private final ArrayList<HashMap<String, String>> items;
     private final OnItemClickListener listener;
+    private ShoppingList shoppingList;
+
+    public ShoppingListAdapter(ShoppingList shoppingList, OnItemClickListener listener) {
+        this.shoppingList = shoppingList;
+        this.listener = listener;
+    }
 
     public interface OnItemClickListener {
         void onEdit(int position);
@@ -23,10 +29,10 @@ public class ShoppingListAdapter extends RecyclerView.Adapter<ShoppingListAdapte
         void onMarkAsPurchased(int position);
     }
 
-    public ShoppingListAdapter(ArrayList<HashMap<String, String>> items, OnItemClickListener listener) {
-        this.items = items;
-        this.listener = listener;
-    }
+//    public ShoppingListAdapter(ArrayList<HashMap<String, String>> items, OnItemClickListener listener) {
+//        this.items = items;
+//        this.listener = listener;
+//    }
 
     @NonNull
     @Override
@@ -38,10 +44,10 @@ public class ShoppingListAdapter extends RecyclerView.Adapter<ShoppingListAdapte
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        HashMap<String, String> item = items.get(position);
-
-        holder.itemName.setText(item.get("name"));
-        holder.itemQuantity.setText(item.get("quantity"));
+    //    HashMap<String, String> item = items.get(position);
+        ShoppingItem item = shoppingList.getItems().get(position);
+        holder.itemName.setText(item.getItem());
+        holder.itemQuantity.setText(item.getQuantity());
 
         holder.editButton.setOnClickListener(v -> listener.onEdit(position));
         holder.deleteButton.setOnClickListener(v -> listener.onDelete(position));
@@ -50,7 +56,7 @@ public class ShoppingListAdapter extends RecyclerView.Adapter<ShoppingListAdapte
 
     @Override
     public int getItemCount() {
-        return items.size();
+        return shoppingList.getItems() != null ? shoppingList.getItems().size() : 0;
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
