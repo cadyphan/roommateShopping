@@ -49,6 +49,7 @@
 package edu.uga.cs.roommateshopping;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -79,20 +80,30 @@ public class SigninDialogFragment extends DialogFragment {
                 .setTitle("Sign In")
                 .setView(layout)
                 .setNegativeButton(android.R.string.cancel, (dialogInterface, whichButton) -> dialogInterface.dismiss())
-                .setPositiveButton(android.R.string.ok, (dialogInterface, which) -> {
-                    String email = emailView.getText().toString();
-                    String password = passwordView.getText().toString();
-
-                    SignInDialogListener listener = (SignInDialogListener) getActivity();
-                    if (listener != null) {
-                        listener.signIn(email, password);
-                    }
-                })
+                .setPositiveButton(android.R.string.ok, new SignInListener())
                 .create();
 
         dialog.getWindow().setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
         return dialog;
     }
+    private class SignInListener implements DialogInterface.OnClickListener {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+            // get the new job lead data from the user
+            String email = emailView.getText().toString();
+            String password = passwordView.getText().toString();
+
+            // get the Activity's listener to add the new job lead
+            SigninDialogFragment.SignInDialogListener listener = (SigninDialogFragment.SignInDialogListener) getActivity();
+
+            // add the new job lead
+            listener.signIn( email, password );
+
+            // close the dialog
+            dismiss();
+        }
+    }
+
 }
 
 
