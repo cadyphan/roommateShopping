@@ -1,0 +1,47 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="8dp">
+
+    <TextView
+        android:id="@+id/itemName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="2"
+        android:text="Item Name"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/itemQuantity"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="Quantity"
+        android:textSize="16sp" />
+
+    <ImageButton
+        android:id="@+id/editButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@android:drawable/ic_menu_edit"
+        android:contentDescription="Edit Item"
+        android:background="?attr/selectableItemBackgroundBorderless" />
+
+    <ImageButton
+        android:id="@+id/deleteButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@android:drawable/ic_menu_delete"
+        android:contentDescription="Delete Item"
+        android:background="?attr/selectableItemBackgroundBorderless" />
+
+    <ImageButton
+        android:id="@+id/moveToCartButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@android:drawable/ic_input_add"
+        android:contentDescription="Move to Cart"
+        android:background="?attr/selectableItemBackgroundBorderless" />
+</LinearLayout>
