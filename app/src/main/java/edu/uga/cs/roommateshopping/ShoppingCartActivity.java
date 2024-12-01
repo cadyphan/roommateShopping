@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -13,14 +14,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-
-import java.util.ArrayList;
-import java.util.HashMap;
 
 public class ShoppingCartActivity extends AppCompatActivity {
 
@@ -52,6 +52,7 @@ public class ShoppingCartActivity extends AppCompatActivity {
                 Toast.makeText(ShoppingCartActivity.this, "Item is already in the cart.", Toast.LENGTH_SHORT).show();
             }
         });
+        findViewById(R.id.checkout).setOnClickListener(v -> checkoutCart());
 
         shoppingCartRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         shoppingCartRecyclerView.setAdapter(shoppingCartAdapter);
@@ -89,6 +90,26 @@ public class ShoppingCartActivity extends AppCompatActivity {
                 .show();
     }
 
+    private void moveToList(int position) {
+        String shoppingListID = "shoppingList";
+        String basketListID = "basketList";
+        ShoppingItem shoppingItem = shoppingBasket.getItems().get(position);
+        FirebaseDatabase db = FirebaseDatabase.getInstance();
+        DatabaseReference shoppingListRef = FirebaseDatabase.getInstance()
+                .getReference("ShoppingList")
+                .child(shoppingListID);
+        DatabaseReference shoppingBasketRef = FirebaseDatabase.getInstance()
+                .getReference("ShoppingBasket")
+                .child(basketListID)
+                .child(shoppingItem.getKey());
+
+        shoppingListRef.push().setValue(shoppingItem);
+      //  shoppingBasketRef.push().setValue(shoppingItem);
+        deleteItemFromCart(position);
+  //      shoppingCartAdapter.notifyItemRemoved(position);
+        Toast.makeText(this, "Item moved to cart", Toast.LENGTH_SHORT).show();
+    }
+
     private void deleteItemFromCart(int position) {
         String listID = "basketList";
         String refID = "ShoppingBasket";
@@ -122,4 +143,72 @@ public class ShoppingCartActivity extends AppCompatActivity {
             }
         });
     }
+    private void checkoutCart() {
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = auth.getCurrentUser();
+
+        if (currentUser == null) {
+            Toast.makeText(this, "You must be logged in to checkout.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Validate that all items have a price
+        for (ShoppingItem item : shoppingBasket.getItems()) {
+            if (item.getPrice() == null || item.getPrice().isEmpty() || Double.parseDouble(item.getPrice()) <= 0) {
+                Toast.makeText(this, "All items must have a valid price before checkout.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+        }
+
+        DatabaseReference purchasesRef = FirebaseDatabase.getInstance().getReference("Purchases");
+        DatabaseReference cartRef = FirebaseDatabase.getInstance().getReference("ShoppingList").child("shoppingCart");
+
+        String userId = currentUser.getUid(); // User's unique ID
+        String userEmail = currentUser.getEmail(); // Optional: User's email
+        long timestamp = System.currentTimeMillis(); // Timestamp for the purchase
+
+        if (shoppingBasket.getItems().isEmpty()) {
+            Toast.makeText(this, "Cart is empty. Nothing to checkout.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Fetch existing purchases to determine the next purchase number
+        purchasesRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                long purchaseNumber = task.getResult().getChildrenCount() + 1;
+                String purchaseName = "Purchase " + purchaseNumber;
+
+                // Create a new PurchaseList object
+                PurchaseList purchaseList = new PurchaseList(
+                        shoppingBasket.getItems(),
+                        userEmail,
+                        purchaseName
+                );
+                purchaseList.setKey(purchasesRef.push().getKey()); // Assign a unique key
+
+                // Store the purchase in Firebase
+                purchasesRef.child(purchaseList.getKey()).setValue(purchaseList)
+                        .addOnCompleteListener(purchaseTask -> {
+                            if (purchaseTask.isSuccessful()) {
+                                // Clear the cart from the database
+                                cartRef.removeValue().addOnCompleteListener(removeTask -> {
+                                    if (removeTask.isSuccessful()) {
+                                        shoppingBasket.getItems().clear();
+                                        shoppingCartAdapter.notifyDataSetChanged();
+                                        Toast.makeText(this, "Checkout successful!", Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        Toast.makeText(this, "Failed to clear cart: " + removeTask.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            } else {
+                                Toast.makeText(this, "Failed to save purchase: " + purchaseTask.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        });
+            } else {
+                Toast.makeText(this, "Failed to fetch purchases: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+
 }

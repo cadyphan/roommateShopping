@@ -28,7 +28,6 @@ import java.util.HashMap;
 public class ShoppingListActivity extends AppCompatActivity {
 
     private RecyclerView shoppingListRecyclerView;
-    private boolean isUpdating = false;
 
     private ShoppingListAdapter shoppingListAdapter;
    // private ArrayList<HashMap<String, String>> shoppingList;
@@ -75,10 +74,6 @@ public class ShoppingListActivity extends AppCompatActivity {
     }
 
     private void fetchShoppingList() {
-        if (isUpdating) {
-            Log.d("FetchShoppingList", "Skipping update due to ongoing operation.");
-            return;
-        }
         DatabaseReference shoppingListRef = FirebaseDatabase.getInstance()
                 .getReference("ShoppingList").child("shoppingList");
 

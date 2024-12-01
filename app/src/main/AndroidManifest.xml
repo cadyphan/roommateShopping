@@ -38,6 +38,10 @@
             android:name=".ShoppingCartActivity"
             android:theme="@style/Theme.RoommateShopping" />
 
+        <activity
+            android:name=".PurchaseListActivity"
+            android:theme="@style/Theme.RoommateShopping" />
+
     </application>
 
 </manifest>
