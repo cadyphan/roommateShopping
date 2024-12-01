@@ -34,6 +34,8 @@ public class ShoppingListActivity extends AppCompatActivity {
  //   private static ArrayList<HashMap<String, String>> shoppingBasket; // Shared with ShoppingCartActivity
     private ShoppingList shoppingList;
     private ShoppingList shoppingBasket;
+    private ShoppingList purchaseList;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,6 +49,9 @@ public class ShoppingListActivity extends AppCompatActivity {
         }
         if (shoppingBasket == null) {
             shoppingBasket = new ShoppingList();
+        }
+        if (purchaseList == null) {
+            purchaseList = new ShoppingList();
         }
         fetchShoppingList();
         // Set up RecyclerView for shopping list
@@ -111,6 +116,13 @@ public class ShoppingListActivity extends AppCompatActivity {
             // Navigate to ShoppingCartActivity
             Intent intent = new Intent(this, ShoppingCartActivity.class);
             intent.putExtra("shoppingBasket", shoppingBasket);
+            startActivity(intent);
+            return true;
+        }
+        if (item.getItemId() == R.id.purchase_cart) {
+            // Navigate to PurchaseListActivity
+            Intent intent = new Intent(this, PurchaseListActivity.class);
+            intent.putExtra("purchaseList", purchaseList);
             startActivity(intent);
             return true;
         }
@@ -254,7 +266,7 @@ public class ShoppingListActivity extends AppCompatActivity {
     private void deleteItemFromShoppingList(int position) {
         String listID = "shoppingList";
         String refID = "ShoppingList";
-        shoppingList.deleteShoppingItem(refID, listID, position, shoppingListAdapter, this, shoppingBasket);
+        shoppingList.deleteShoppingItem(refID, listID, position, shoppingListAdapter, this, shoppingList);
         shoppingListAdapter.notifyItemRemoved(position);
         Toast.makeText(this, "Item removed from cart", Toast.LENGTH_SHORT).show();
     }
@@ -274,7 +286,6 @@ public class ShoppingListActivity extends AppCompatActivity {
 
         shoppingBasketRef.push().setValue(shoppingItem);
         deleteItemFromShoppingList(position);
-        shoppingListAdapter.notifyItemRemoved(position);
         Toast.makeText(this, "Item moved to cart", Toast.LENGTH_SHORT).show();
     }
 }
