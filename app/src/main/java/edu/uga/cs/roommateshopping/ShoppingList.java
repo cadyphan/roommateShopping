@@ -32,9 +32,9 @@ public class ShoppingList implements Serializable {
 
     public List<ShoppingItem> getItems() { return shoppingList; }
 
-    public void deleteShoppingItem(String listId, int position, ShoppingListAdapter adapter, Context context) {
+    public void deleteShoppingItem(String listId, int position, ShoppingListAdapter adapter, Context context, ShoppingList list) {
         // Get the item to delete
-        ShoppingItem itemToDelete = shoppingList.get(position);
+        ShoppingItem itemToDelete = list.getItems().get(position);
         Log.d("DeleteItem", "Deleting item with key: " + itemToDelete.getKey());
 
         // Firebase reference to the item
@@ -49,8 +49,10 @@ public class ShoppingList implements Serializable {
         itemRef.removeValue().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 // Update local list and adapter
-                shoppingList.remove(position);
-                adapter.notifyItemRemoved(position);
+               String removed =  list.getItems().remove(position).toString();
+                Log.d("Item removed: ", removed);
+       ///         adapter.notifyItemRemoved(position);
+                adapter.notifyItemRangeChanged(position, list.getItems().size()-1);
                 Toast.makeText(context, "Item deleted successfully!", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(context, "Failed to delete item: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
