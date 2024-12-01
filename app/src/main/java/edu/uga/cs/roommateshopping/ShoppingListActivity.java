@@ -258,35 +258,10 @@ public class ShoppingListActivity extends AppCompatActivity {
 
     private void deleteItemFromShoppingList(int position) {
         String listID = "shoppingList";
-        //   shoppingList.deleteShoppingItem(listID, position, shoppingListAdapter, this, shoppingList);
-        ShoppingItem itemToDelete = shoppingList.getItems().get(position);
-        Log.d("DeleteItem", "Deleting item with key: " + itemToDelete.getKey());
-        isUpdating = true;
-
-        // Firebase reference to the item
-        DatabaseReference itemRef = FirebaseDatabase.getInstance()
-                .getReference("ShoppingList")
-                .child(listID)
-                .child(itemToDelete.getKey());
-
-        Log.d("DeleteItem", "Firebase Reference: " + itemRef.toString());
-
-        // Remove the item from Firebase
-        itemRef.removeValue().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                // Update local list and adapter
-                shoppingList.getItems().remove(position);
-             //   Log.d("Item removed: ", removed);
-                shoppingListAdapter.notifyItemRemoved(position);
-                isUpdating = false; // Reset the flag
-                //     shoppingListAdapter.notifyItemRangeChanged(position, shoppingList.getItems().size()-1);
-                Toast.makeText(this, "Item deleted successfully!", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(this, "Failed to delete item: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-     //   shoppingListAdapter.notifyItemRemoved(position);
-      //  Toast.makeText(this, "Item removed from shopping list", Toast.LENGTH_SHORT).show();
+        String refID = "ShoppingList";
+        shoppingList.deleteShoppingItem(refID, listID, position, shoppingListAdapter, this, shoppingBasket);
+        shoppingListAdapter.notifyItemRemoved(position);
+        Toast.makeText(this, "Item removed from cart", Toast.LENGTH_SHORT).show();
     }
 
     private void moveToCart(int position) {
