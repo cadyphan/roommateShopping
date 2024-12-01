@@ -52,7 +52,7 @@ public class ShoppingList implements Serializable {
                 list.getItems().remove(position);
          //       Log.d("Item removed: ", removed);
        //         adapter.notifyItemRemoved(position);
-                adapter.notifyItemRangeChanged(position, list.getItems().size()-1);
+        //        adapter.notifyItemRangeChanged(position, list.getItems().size()-1);
                 Toast.makeText(context, "Item deleted successfully!", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(context, "Failed to delete item: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();

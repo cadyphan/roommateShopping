@@ -172,18 +172,25 @@ public class ShoppingCartActivity extends AppCompatActivity {
             return;
         }
 
+        float totalPrice = 0;
+        for (ShoppingItem item : shoppingBasket.getItems()) {
+            try {
+                totalPrice += Float.parseFloat(item.getPrice());
+            } catch (NumberFormatException e) {
+                Toast.makeText(this, "Failed to calculate total price. Invalid price format.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+        }
+
         // Fetch existing purchases to determine the next purchase number
+        float finalTotalPrice = totalPrice;
         purchasesRef.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 long purchaseNumber = task.getResult().getChildrenCount() + 1;
                 String purchaseName = "Purchase " + purchaseNumber;
 
                 // Create a new PurchaseList object
-                PurchaseList purchaseList = new PurchaseList(
-                        shoppingBasket.getItems(),
-                        userEmail,
-                        purchaseName
-                );
+                PurchaseList purchaseList = new PurchaseList(shoppingBasket.getItems(), userEmail, purchaseName, finalTotalPrice);
                 purchaseList.setKey(purchasesRef.push().getKey()); // Assign a unique key
 
                 // Store the purchase in Firebase

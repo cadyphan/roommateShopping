@@ -7,18 +7,22 @@ public class PurchaseList {
     private String purchasedBy;
     private String name;
     private String key;
+    private float total;
+
     public PurchaseList() {
         this.purchaseList = null;
         this.purchasedBy = null;
         this.name = null;
         this.key = null;
+        this.total = 0;
     }
 
-    public PurchaseList(List<ShoppingItem> shoppingList, String purchasedBy, String name) {
+    public PurchaseList(List<ShoppingItem> shoppingList, String purchasedBy, String name, float total) {
         this.purchaseList = shoppingList;
         this.purchasedBy = purchasedBy;
         this.name = name;
         this.key = null;
+        this.total = total;
     }
 
     public void setPurchaseList(List<ShoppingItem> shoppingList) {
@@ -40,6 +44,10 @@ public class PurchaseList {
     public String getKey () {return key;}
 
     public void setKey (String key) { this.key = key;}
+
+    public float getTotal () {return total;}
+
+    public void setTotal (float total) { this.total = total;}
 
 
 }
