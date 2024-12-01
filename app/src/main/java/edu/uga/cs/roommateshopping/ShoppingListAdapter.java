@@ -1,5 +1,6 @@
 package edu.uga.cs.roommateshopping;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +17,7 @@ public class ShoppingListAdapter extends RecyclerView.Adapter<ShoppingListAdapte
 
   //  private final ArrayList<HashMap<String, String>> items;
     private final OnItemClickListener listener;
-    private ShoppingList shoppingList;
+    private final ShoppingList shoppingList;
 
     public ShoppingListAdapter(ShoppingList shoppingList, OnItemClickListener listener) {
         this.shoppingList = shoppingList;
@@ -45,6 +46,10 @@ public class ShoppingListAdapter extends RecyclerView.Adapter<ShoppingListAdapte
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
     //    HashMap<String, String> item = items.get(position);
+        if (position < 0 || position >= shoppingList.getItems().size()) {
+            Log.e("ShoppingListAdapter", "Invalid position: " + position);
+            return;
+        }
         ShoppingItem item = shoppingList.getItems().get(position);
         holder.itemName.setText(item.getItem());
         holder.itemQuantity.setText(item.getQuantity());
@@ -57,6 +62,11 @@ public class ShoppingListAdapter extends RecyclerView.Adapter<ShoppingListAdapte
     @Override
     public int getItemCount() {
         return shoppingList.getItems() != null ? shoppingList.getItems().size() : 0;
+    }
+
+    public void addItem(ShoppingItem newItem) {
+        shoppingList.getItems().add(newItem);  // Add to the data source
+        notifyItemInserted(shoppingList.getItems().size() - 1);  // Notify adapter about the new item
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

@@ -28,6 +28,7 @@ import java.util.HashMap;
 public class ShoppingListActivity extends AppCompatActivity {
 
     private RecyclerView shoppingListRecyclerView;
+    private boolean isUpdating = false;
 
     private ShoppingListAdapter shoppingListAdapter;
    // private ArrayList<HashMap<String, String>> shoppingList;
@@ -42,7 +43,9 @@ public class ShoppingListActivity extends AppCompatActivity {
         shoppingListRecyclerView = findViewById(R.id.shoppingListRecyclerView);
 
      //    Initialize shopping list and basket
-        shoppingList = new ShoppingList();
+        if (shoppingList == null) {
+            shoppingList = new ShoppingList();
+        }
         if (shoppingBasket == null) {
             shoppingBasket = new ShoppingList();
         }
@@ -72,6 +75,10 @@ public class ShoppingListActivity extends AppCompatActivity {
     }
 
     private void fetchShoppingList() {
+        if (isUpdating) {
+            Log.d("FetchShoppingList", "Skipping update due to ongoing operation.");
+            return;
+        }
         DatabaseReference shoppingListRef = FirebaseDatabase.getInstance()
                 .getReference("ShoppingList").child("shoppingList");
 
@@ -83,7 +90,7 @@ public class ShoppingListActivity extends AppCompatActivity {
                     ShoppingItem item = itemSnapshot.getValue(ShoppingItem.class);
                     if (item != null) {
                         item.setKey(itemSnapshot.getKey());
-                        Log.d("keys: ", item.getKey()); // Set the Firebase key
+                        Log.d("Fetch keys: ", item.getKey()); // Set the Firebase key
                         shoppingList.getItems().add(item);
                     }
                 }
@@ -115,6 +122,18 @@ public class ShoppingListActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    // Helper function to check if the item already exists in the local list
+    private boolean isItemAlreadyInLocalList(ShoppingItem newItem) {
+        for (ShoppingItem item : shoppingList.getItems()) {
+            if (item.getItem().equals(newItem.getItem()) &&
+                    item.getQuantity().equals(newItem.getQuantity()) &&
+                    item.getPrice().equals(newItem.getPrice())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void showAddItemDialog() {
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_add_item, null);
         EditText itemNameEditText = dialogView.findViewById(R.id.itemNameEditText);
@@ -141,22 +160,48 @@ public class ShoppingListActivity extends AppCompatActivity {
 //                    shoppingList.add(newItem);
 
                     ShoppingItem newShoppingItem = new ShoppingItem(itemName, itemQuantity, itemPrice.isEmpty() ? "" : itemPrice);
-
+                    // Check if the item already exists locally
+                    if (isItemAlreadyInLocalList(newShoppingItem)) {
+                        Toast.makeText(this, "Item already exists in the list", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                     FirebaseDatabase db = FirebaseDatabase.getInstance();
                     DatabaseReference shoppingListRef = db.getReference("ShoppingList");
 
-                    String key = shoppingListRef.child("shoppingList").push().getKey();
-                    newShoppingItem.setKey(key);
+                    shoppingListRef.child("shoppingList")
+                            .orderByChild("itemName") // Assuming itemName is unique and used for comparison
+                            .equalTo(itemName)
+                            .addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                    if (dataSnapshot.exists()) {
+                                        // Item already exists in Firebase
+                                        Toast.makeText(getApplicationContext(), "Item already exists in Firebase", Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        // Proceed to add item to Firebase and local list
+                                        String key = shoppingListRef.child("shoppingList").push().getKey();
+                                        newShoppingItem.setKey(key);
 
-                    assert key != null;
-                    Log.d("key:", key);
-                    shoppingListRef.child("shoppingList").child(key).setValue(newShoppingItem)
-                            .addOnCompleteListener(task -> {
-                                if (task.isSuccessful()) {
-                                    Toast.makeText(this, "Item added to shopping list", Toast.LENGTH_SHORT).show();
-                                    shoppingListAdapter.notifyItemInserted(shoppingList.getItems().size()-1);
-                                } else {
-                                    Toast.makeText(this, "Failed to add item: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                        assert key != null;
+                                        shoppingListRef.child("shoppingList").child(key).setValue(newShoppingItem)
+                                                .addOnCompleteListener(task -> {
+                                                    if (task.isSuccessful()) {
+                                                        // Only update the local list and adapter after Firebase operation
+                                                        shoppingList.getItems().add(newShoppingItem);
+                                                  //      shoppingListAdapter.notifyItemInserted(shoppingList.getItems().size() - 1);
+                                                        Toast.makeText(getApplicationContext(), "Item added to shopping list", Toast.LENGTH_SHORT).show();
+                                                    } else {
+                                                        // Handle failure
+                                                        Toast.makeText(getApplicationContext(), "Failed to add item: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                                    }
+                                                });
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError databaseError) {
+                                    // Handle possible error in Firebase query
+                                    Toast.makeText(getApplicationContext(), "Failed to check Firebase: " + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
                                 }
                             });
                 })
@@ -192,13 +237,12 @@ public class ShoppingListActivity extends AppCompatActivity {
 
                     currentItem.setItem(updatedName);
                     currentItem.setQuantity(updatedQuantity.isEmpty() ? "1" : updatedQuantity);
-                    currentItem.setPrice(updatedPrice.isEmpty() ? "1" : updatedPrice);
+                    currentItem.setPrice(updatedPrice.isEmpty() ? "0" : updatedPrice);
 
                     FirebaseDatabase database = FirebaseDatabase.getInstance();
                     DatabaseReference itemRef = database.getReference("ShoppingList")
                             .child("shoppingList")
                             .child(currentItem.getKey());
-                    shoppingListAdapter.notifyItemChanged(position);
                     itemRef.setValue(currentItem).addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
                             // Update the adapter to reflect the changes
@@ -214,9 +258,35 @@ public class ShoppingListActivity extends AppCompatActivity {
 
     private void deleteItemFromShoppingList(int position) {
         String listID = "shoppingList";
-        shoppingList.deleteShoppingItem(listID, position, shoppingListAdapter, this);
+        //   shoppingList.deleteShoppingItem(listID, position, shoppingListAdapter, this, shoppingList);
+        ShoppingItem itemToDelete = shoppingList.getItems().get(position);
+        Log.d("DeleteItem", "Deleting item with key: " + itemToDelete.getKey());
+        isUpdating = true;
+
+        // Firebase reference to the item
+        DatabaseReference itemRef = FirebaseDatabase.getInstance()
+                .getReference("ShoppingList")
+                .child(listID)
+                .child(itemToDelete.getKey());
+
+        Log.d("DeleteItem", "Firebase Reference: " + itemRef.toString());
+
+        // Remove the item from Firebase
+        itemRef.removeValue().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                // Update local list and adapter
+                shoppingList.getItems().remove(position);
+             //   Log.d("Item removed: ", removed);
+                shoppingListAdapter.notifyItemRemoved(position);
+                isUpdating = false; // Reset the flag
+                //     shoppingListAdapter.notifyItemRangeChanged(position, shoppingList.getItems().size()-1);
+                Toast.makeText(this, "Item deleted successfully!", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Failed to delete item: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
      //   shoppingListAdapter.notifyItemRemoved(position);
-        Toast.makeText(this, "Item removed from shopping list", Toast.LENGTH_SHORT).show();
+      //  Toast.makeText(this, "Item removed from shopping list", Toast.LENGTH_SHORT).show();
     }
 
     private void moveToCart(int position) {
