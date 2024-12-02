@@ -16,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -124,6 +125,15 @@ public class ShoppingListActivity extends AppCompatActivity {
             Intent intent = new Intent(this, PurchaseListActivity.class);
             intent.putExtra("purchaseList", purchaseList);
             startActivity(intent);
+            return true;
+        }
+        if (item.getItemId() == R.id.logout) {
+            // Navigate to PurchaseListActivity
+            FirebaseAuth mAuth = FirebaseAuth.getInstance();
+            mAuth.signOut();
+            Intent intent = new Intent(this, MainActivity.class); // Adjust if needed to go to another screen
+            startActivity(intent);
+            finish();
             return true;
         }
         return super.onOptionsItemSelected(item);

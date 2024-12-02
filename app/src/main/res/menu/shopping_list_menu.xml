@@ -10,4 +10,8 @@
         android:icon="@drawable/ic_cart"
         android:title="Cart"
         app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/logout"
+        android:title="LogOut"
+        app:showAsAction="always" />
 </menu>
