@@ -2,7 +2,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/purchase_cart"
-        android:icon="@drawable/ic_cart"
+        android:icon="@drawable/ic_history"
         android:title="Purchase"
         app:showAsAction="ifRoom" />
     <item
