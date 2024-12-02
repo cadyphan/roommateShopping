@@ -1,12 +1,13 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/action_cart"
-        android:title="Cart"
-        app:showAsAction="ifRoom" />
-    <item
         android:id="@+id/purchase_cart"
         android:icon="@drawable/ic_cart"
         android:title="Purchase"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_cart"
+        android:icon="@drawable/ic_cart"
+        android:title="Cart"
         app:showAsAction="ifRoom" />
 </menu>

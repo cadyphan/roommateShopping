@@ -30,7 +30,7 @@ public class PurchaseListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_shopping_cart);
 
         purchaseList = (ShoppingList) getIntent().getSerializableExtra("purchaseList");
-        fetchBasketList();
+        fetchPurchaseList();
         purchaseListRecyclerView = findViewById(R.id.shoppingCartRecyclerView);
         purchaseListAdapter = new ShoppingListAdapter(purchaseList, new ShoppingListAdapter.OnItemClickListener() {
             @Override
@@ -56,26 +56,25 @@ public class PurchaseListActivity extends AppCompatActivity {
     private void showEditItemDialog(int position) {
         ShoppingItem currentItem = purchaseList.getItems().get(position);
 
-        View dialogView = getLayoutInflater().inflate(R.layout.dialog_add_item, null);
-        EditText itemQuantityEditText = dialogView.findViewById(R.id.itemQuantityEditText);
-        EditText itemPriceEditText = dialogView.findViewById(R.id.itemPriceEditText);
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_edit_price, null);
+        EditText itemPriceEditText = dialogView.findViewById(R.id.editPriceEditText);
 
-        itemQuantityEditText.setText(currentItem.getQuantity());
         itemPriceEditText.setText(currentItem.getPrice());
+     //   float currentPrice = currentItem.getTotal();
 
         new AlertDialog.Builder(this)
-                .setTitle("Edit Item")
+                .setTitle("Edit Price")
                 .setView(dialogView)
                 .setPositiveButton("Update", (dialog, which) -> {
-                    String updatedQuantity = itemQuantityEditText.getText().toString().trim();
+             //       String updatedQuantity = itemQuantityEditText.getText().toString().trim();
                     String updatedPrice = itemPriceEditText.getText().toString().trim();
 
-                    if (TextUtils.isEmpty(updatedQuantity)) {
-                        Toast.makeText(this, "Quantity cannot be empty", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
+//                    if (TextUtils.isEmpty(updatedQuantity)) {
+//                        Toast.makeText(this, "Quantity cannot be empty", Toast.LENGTH_SHORT).show();
+//                        return;
+//                    }
 
-                    currentItem.setQuantity(updatedQuantity);
+            //        currentItem.setQuantity(updatedQuantity);
                     currentItem.setPrice(updatedPrice.isEmpty() ? "0.00" : updatedPrice);
 
                     purchaseListAdapter.notifyItemChanged(position);
@@ -113,9 +112,9 @@ public class PurchaseListActivity extends AppCompatActivity {
 //        Toast.makeText(this, "Item removed from cart", Toast.LENGTH_SHORT).show();
 //    }
 
-    private void fetchBasketList() {
+    private void fetchPurchaseList() {
         DatabaseReference shoppingListRef = FirebaseDatabase.getInstance()
-                .getReference("ShoppingBasket").child("basketList");
+                .getReference("PurchaseList");
 
         shoppingListRef.addValueEventListener(new ValueEventListener() {
             @Override
