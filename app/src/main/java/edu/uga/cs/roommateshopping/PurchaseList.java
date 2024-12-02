@@ -1,8 +1,9 @@
 package edu.uga.cs.roommateshopping;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class PurchaseList {
+public class PurchaseList implements Serializable {
     private List<ShoppingItem> purchaseList;
     private String purchasedBy;
     private String name;
@@ -49,5 +50,8 @@ public class PurchaseList {
 
     public void setTotal (float total) { this.total = total;}
 
+    public List<ShoppingItem> getItems() { return purchaseList; }
+
+    public int getPurchaseListCount () {return purchaseList.size();}
 
 }

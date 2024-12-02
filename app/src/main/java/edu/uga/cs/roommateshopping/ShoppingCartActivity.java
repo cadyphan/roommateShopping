@@ -44,7 +44,7 @@ public class ShoppingCartActivity extends AppCompatActivity {
 
             @Override
             public void onDelete(int position) {
-                deleteItemFromCart(position);
+                moveToList(position);
             }
 
             @Override
