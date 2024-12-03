@@ -31,7 +31,7 @@ public class RegisterActivity extends AppCompatActivity {
         emailEditText = findViewById( R.id.email );
         passwordEditText = findViewById( R.id.password );
 
-        Button registerButton = findViewById(R.id.register);
+        Button registerButton = findViewById(R.id.RegisterButton);
         registerButton.setOnClickListener( new RegisterButtonClickListener() );
     }
     private class RegisterButtonClickListener implements View.OnClickListener {
