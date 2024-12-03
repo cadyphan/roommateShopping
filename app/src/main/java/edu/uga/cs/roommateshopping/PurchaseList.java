@@ -1,6 +1,7 @@
 package edu.uga.cs.roommateshopping;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 public class PurchaseList implements Serializable {
@@ -11,7 +12,7 @@ public class PurchaseList implements Serializable {
     private float total;
 
     public PurchaseList() {
-        this.purchaseList = null;
+        this.purchaseList = new ArrayList<>();
         this.purchasedBy = null;
         this.name = null;
         this.key = null;

@@ -61,7 +61,6 @@ public class PurchaseListActivity extends AppCompatActivity {
         EditText totalPriceEditText = dialogView.findViewById(R.id.editPriceEditText);
 
         totalPriceEditText.setText(String.format("%.2f", currentPurchaseList.getTotal()));
-     //   float currentPrice = currentItem.getTotal();
 
         new AlertDialog.Builder(this)
                 .setTitle("Edit Total Price")
@@ -99,34 +98,6 @@ public class PurchaseListActivity extends AppCompatActivity {
                 .setNegativeButton("Cancel", null)
                 .show();
     }
-
-//    private void moveToList(int position) {
-//        String shoppingListID = "shoppingList";
-//        String basketListID = "basketList";
-//        ShoppingItem shoppingItem = shoppingBasket.getItems().get(position);
-//        FirebaseDatabase db = FirebaseDatabase.getInstance();
-//        DatabaseReference shoppingListRef = FirebaseDatabase.getInstance()
-//                .getReference("ShoppingList")
-//                .child(shoppingListID);
-//        DatabaseReference shoppingBasketRef = FirebaseDatabase.getInstance()
-//                .getReference("ShoppingBasket")
-//                .child(basketListID)
-//                .child(shoppingItem.getKey());
-//
-//        shoppingListRef.push().setValue(shoppingItem);
-//        //  shoppingBasketRef.push().setValue(shoppingItem);
-//        deleteItemFromCart(position);
-//        //      shoppingCartAdapter.notifyItemRemoved(position);
-//        Toast.makeText(this, "Item moved to cart", Toast.LENGTH_SHORT).show();
-//    }
-//
-//    private void deleteItemFromCart(int position) {
-//        String listID = "basketList";
-//        String refID = "ShoppingBasket";
-//        shoppingBasket.deleteShoppingItem(refID, listID, position, shoppingCartAdapter, this, shoppingBasket);
-//        shoppingCartAdapter.notifyItemRemoved(position);
-//        Toast.makeText(this, "Item removed from cart", Toast.LENGTH_SHORT).show();
-//    }
 
     private void fetchPurchaseList() {
         DatabaseReference shoppingListRef = FirebaseDatabase.getInstance().getReference("Purchases");

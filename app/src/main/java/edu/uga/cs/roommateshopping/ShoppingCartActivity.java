@@ -114,10 +114,17 @@ public class ShoppingCartActivity extends AppCompatActivity {
                 .child(basketListID)
                 .child(shoppingItem.getKey());
 
-        shoppingListRef.push().setValue(shoppingItem);
-      //  shoppingBasketRef.push().setValue(shoppingItem);
+
+        shoppingListRef.push().setValue(shoppingItem).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                // Update local list and adapter
+                shoppingBasket.getItems().remove(position);
+                Toast.makeText(this, "Item deleted successfully!", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Failed to delete item: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
         deleteItemFromCart(position);
-  //      shoppingCartAdapter.notifyItemRemoved(position);
         Toast.makeText(this, "Item moved to cart", Toast.LENGTH_SHORT).show();
     }
 
