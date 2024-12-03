@@ -57,11 +57,6 @@ public class PurchaseListAdapter extends RecyclerView.Adapter<PurchaseListAdapte
        return purchaseLists != null ? purchaseLists.size() : 0;
     }
 
-//    public void addItem(ShoppingItem newItem) {
-//        purchaseList.getItems().add(newItem);  // Add to he data source
-//        notifyItemInserted(purchaseList.getItems().size() - 1);  // Notify adapter about the new item
-//    }
-
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public TextView purchaseName;
         public TextView purchasePrice;
