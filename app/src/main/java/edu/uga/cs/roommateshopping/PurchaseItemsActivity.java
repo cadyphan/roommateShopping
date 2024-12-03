@@ -91,17 +91,19 @@ public class PurchaseItemsActivity extends AppCompatActivity {
                 .child("purchaseList")
                 .child(itemKey);
 
-        itemRef.removeValue()
-                .addOnSuccessListener(aVoid -> {
-                    // Remove the item locally and notify the adapter
-                    purchaseItems.getItems().remove(position);
-                    purchaseItemsAdapter.notifyItemRemoved(position);
-                    Toast.makeText(this, "Item removed from cart", Toast.LENGTH_SHORT).show();
-                })
-                .addOnFailureListener(e -> {
-                    Log.e("PurchaseItemsActivity", "Failed to remove item: " + e.getMessage());
-                    Toast.makeText(this, "Failed to remove item: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                });
+        Log.d("Item Ref before: ", itemRef.toString());
+        itemRef.removeValue();
+        Log.d("Item Ref after: ",FirebaseDatabase.getInstance().getReference("Purchases").child(purchaseListKey).child("purchaseList").toString());
+//                .addOnSuccessListener(aVoid -> {
+//                    // Remove the item locally and notify the adapter
+//                    purchaseItems.getItems().remove(position);
+//                    purchaseItemsAdapter.notifyItemRemoved(position);
+//                    Toast.makeText(this, "Item removed from cart", Toast.LENGTH_SHORT).show();
+//                })
+//                .addOnFailureListener(e -> {
+//                    Log.e("PurchaseItemsActivity", "Failed to remove item: " + e.getMessage());
+//                    Toast.makeText(this, "Failed to remove item: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+//                });
     }
 
     private void moveToList(int position) {

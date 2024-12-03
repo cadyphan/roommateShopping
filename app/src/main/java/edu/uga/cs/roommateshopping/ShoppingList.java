@@ -48,6 +48,7 @@ public class ShoppingList implements Serializable {
         // Remove the item from Firebase
         itemRef.removeValue().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
+                Log.d("ShoppingList Item Ref after: ", itemRef.toString());
                 // Update local list and adapter
                 Log.d("ShoppingList", "Removed Item from database");
            //     list.getItems().remove(position);
