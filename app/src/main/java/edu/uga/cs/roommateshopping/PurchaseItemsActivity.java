@@ -91,19 +91,49 @@ public class PurchaseItemsActivity extends AppCompatActivity {
                 .child("purchaseList")
                 .child(String.valueOf(position));
 
-        Log.d("Item Ref before: ", itemRef.toString());
-        itemRef.removeValue();
-        Log.d("Item Ref after: ",FirebaseDatabase.getInstance().getReference("Purchases").child(purchaseListKey).child("purchaseList").toString());
-//                .addOnSuccessListener(aVoid -> {
-//                    // Remove the item locally and notify the adapter
-//                    purchaseItems.getItems().remove(position);
-//                    purchaseItemsAdapter.notifyItemRemoved(position);
-//                    Toast.makeText(this, "Item removed from cart", Toast.LENGTH_SHORT).show();
-//                })
-//                .addOnFailureListener(e -> {
-//                    Log.e("PurchaseItemsActivity", "Failed to remove item: " + e.getMessage());
-//                    Toast.makeText(this, "Failed to remove item: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-//                });
+        itemRef.removeValue()
+                .addOnSuccessListener(aVoid -> {
+                    // Remove the item locally and notify the adapter
+                    Toast.makeText(this, "Item removed from cart", Toast.LENGTH_SHORT).show();
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("PurchaseItemsActivity", "Failed to remove item: " + e.getMessage());
+                    Toast.makeText(this, "Failed to remove item: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+
+        DatabaseReference itemsAfter = FirebaseDatabase.getInstance()
+                .getReference("Purchases")
+                .child(purchaseListKey)
+                .child("purchaseList");
+
+        itemsAfter.get().addOnCompleteListener(task -> {
+            float totalPrice = 0;
+            for (DataSnapshot snapshot : task.getResult().getChildren()) {
+                try {
+                    ShoppingItem item = snapshot.getValue(ShoppingItem.class); // Deserialize snapshot into ShoppingItem
+
+                    float itemPrice = Float.parseFloat(item.getPrice());
+                    int quantity = Integer.parseInt(item.getQuantity());
+                    totalPrice += (itemPrice * quantity);
+                } catch (NumberFormatException e) {
+                    Toast.makeText(this, "Failed to calculate total price. Invalid price format.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            }
+            float finalTotalPrice = (float) (totalPrice * 1.07);
+
+            DatabaseReference totalRef = FirebaseDatabase.getInstance()
+                    .getReference("Purchases")
+                    .child(purchaseListKey)
+                    .child("total");
+            totalRef.setValue(finalTotalPrice)
+                    .addOnSuccessListener(aVoid -> {
+                        Toast.makeText(this, "Total price updated!", Toast.LENGTH_SHORT).show();
+                    })
+                    .addOnFailureListener(aVoid -> {
+                        Toast.makeText(this, "Failed to update total price.", Toast.LENGTH_SHORT).show();
+                    });
+        });
     }
 
     private void moveToList(int position) {
