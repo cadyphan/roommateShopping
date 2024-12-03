@@ -34,6 +34,7 @@ public class ShoppingList implements Serializable {
 
     public void deleteShoppingItem(String refID, String listId, int position, ShoppingListAdapter adapter, Context context, ShoppingList list) {
         // Get the item to delete
+
         ShoppingItem itemToDelete = list.getItems().get(position);
         Log.d("DeleteItem", "Adapter: " + adapter);
         Log.d("DeleteItem", "List: " + list.getItems());
