@@ -81,10 +81,21 @@ public class ShoppingCartActivity extends AppCompatActivity {
                     }
 
                     currentItem.setQuantity(updatedQuantity);
-                    currentItem.setPrice(updatedPrice.isEmpty() ? "0.00" : updatedPrice);
+                    currentItem.setPrice(updatedPrice.isEmpty() ? currentItem.getPrice() : updatedPrice);
 
-                    shoppingCartAdapter.notifyItemChanged(position);
-                    Toast.makeText(this, "Item updated", Toast.LENGTH_SHORT).show();
+                    FirebaseDatabase database = FirebaseDatabase.getInstance();
+                    DatabaseReference itemRef = database.getReference("ShoppingBasket")
+                            .child("basketList")
+                            .child(currentItem.getKey());
+                    itemRef.setValue(currentItem).addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            // Update the adapter to reflect the changes
+                            shoppingCartAdapter.notifyItemChanged(position);
+                            Toast.makeText(this, "Item updated successfully!", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(this, "Failed to update item: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
@@ -161,9 +172,8 @@ public class ShoppingCartActivity extends AppCompatActivity {
         }
 
         DatabaseReference purchasesRef = FirebaseDatabase.getInstance().getReference("Purchases");
-        DatabaseReference cartRef = FirebaseDatabase.getInstance().getReference("ShoppingList").child("shoppingCart");
+        DatabaseReference cartRef = FirebaseDatabase.getInstance().getReference("ShoppingBasket").child("basketList");
 
-        String userId = currentUser.getUid(); // User's unique ID
         String userEmail = currentUser.getEmail(); // Optional: User's email
         long timestamp = System.currentTimeMillis(); // Timestamp for the purchase
 
@@ -175,7 +185,9 @@ public class ShoppingCartActivity extends AppCompatActivity {
         float totalPrice = 0;
         for (ShoppingItem item : shoppingBasket.getItems()) {
             try {
-                totalPrice += Float.parseFloat(item.getPrice());
+                float itemPrice = Float.parseFloat(item.getPrice());
+                int quantity = Integer.parseInt(item.getQuantity());
+                totalPrice += (itemPrice * quantity);
             } catch (NumberFormatException e) {
                 Toast.makeText(this, "Failed to calculate total price. Invalid price format.", Toast.LENGTH_SHORT).show();
                 return;
@@ -183,7 +195,7 @@ public class ShoppingCartActivity extends AppCompatActivity {
         }
 
         // Fetch existing purchases to determine the next purchase number
-        float finalTotalPrice = totalPrice;
+        float finalTotalPrice = (float) (totalPrice * 1.07);
         purchasesRef.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 long purchaseNumber = task.getResult().getChildrenCount() + 1;
