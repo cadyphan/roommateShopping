@@ -1,6 +1,7 @@
 package edu.uga.cs.roommateshopping;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -74,6 +75,7 @@ public class PurchaseItemsActivity extends AppCompatActivity {
     private void moveToList(int position) {
         String shoppingListID = "shoppingList";
         ShoppingItem shoppingItem = purchaseItems.getItems().get(position);
+
         FirebaseDatabase db = FirebaseDatabase.getInstance();
         DatabaseReference shoppingListRef = FirebaseDatabase.getInstance()
                 .getReference("ShoppingList")
@@ -83,17 +85,22 @@ public class PurchaseItemsActivity extends AppCompatActivity {
                 .child(purchaseListKey)
                 .child(shoppingItem.getKey());
 
-        shoppingListRef.push().setValue(shoppingItem);
-        //  shoppingBasketRef.push().setValue(shoppingItem);
-        deleteItemFromCart(position);
-        //      shoppingCartAdapter.notifyItemRemoved(position);
+        shoppingListRef.push().setValue(shoppingItem)
+            .addOnSuccessListener(aVoid -> {
+                // Delete the item from the purchase list after adding successfully
+                deleteItemFromCart(position);
+                Toast.makeText(this, "Item moved to cart", Toast.LENGTH_SHORT).show();
+            })
+                .addOnFailureListener(e -> {
+                    Log.e("PurchaseItemsActivity", "Failed to add item to shopping list: " + e.getMessage());
+                    Toast.makeText(this, "Failed to move item: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
         Toast.makeText(this, "Item moved to cart", Toast.LENGTH_SHORT).show();
     }
 
     private void deleteItemFromCart(int position) {
         String listID = purchaseListKey;
-        String refID = "Purchase";
-        purchaseItems.deleteShoppingItem(refID, listID, position, purchaseItemsAdapter, this, purchaseItems);
+        purchaseItems.deleteShoppingItem(listID, position, purchaseItemsAdapter, this, purchaseItems);
         purchaseItemsAdapter.notifyItemRemoved(position);
         Toast.makeText(this, "Item removed from cart", Toast.LENGTH_SHORT).show();
     }
