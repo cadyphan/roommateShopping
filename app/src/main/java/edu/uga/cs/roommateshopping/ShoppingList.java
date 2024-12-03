@@ -59,5 +59,32 @@ public class ShoppingList implements Serializable {
             }
         });
     }
+    public void deleteShoppingItem(String refID, String listId, int position, PurchaseItemAdapter adapter, Context context, ShoppingList list) {
+        // Get the item to delete
+        ShoppingItem itemToDelete = list.getItems().get(position);
+        Log.d("DeleteItem", "Deleting item with key: " + itemToDelete.getKey());
 
+        // Firebase reference to the item
+        DatabaseReference itemRef = FirebaseDatabase.getInstance()
+                .getReference("Purchases")
+                .child(refID)
+                .child("purchaseList")
+                .child(itemToDelete.getKey());
+
+        Log.d("DeleteItem", "Firebase Reference: " + itemRef.toString());
+
+        // Remove the item from Firebase
+        itemRef.removeValue().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                // Update local list and adapter
+                list.getItems().remove(position);
+                //       Log.d("Item removed: ", removed);
+                //         adapter.notifyItemRemoved(position);
+                //        adapter.notifyItemRangeChanged(position, list.getItems().size()-1);
+                Toast.makeText(context, "Item deleted successfully!", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(context, "Failed to delete item: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 }

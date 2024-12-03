@@ -51,9 +51,9 @@ public class ShoppingListActivity extends AppCompatActivity {
         if (shoppingBasket == null) {
             shoppingBasket = new ShoppingList();
         }
-        if (purchaseList == null) {
-            purchaseList = new ShoppingList();
-        }
+//        if (purchaseList == null) {
+//            purchaseList = new ShoppingList();
+//        }
         fetchShoppingList();
         // Set up RecyclerView for shopping list
         shoppingListAdapter = new ShoppingListAdapter(shoppingList, new ShoppingListAdapter.OnItemClickListener() {
@@ -82,7 +82,6 @@ public class ShoppingListActivity extends AppCompatActivity {
     private void fetchShoppingList() {
         DatabaseReference shoppingListRef = FirebaseDatabase.getInstance()
                 .getReference("ShoppingList").child("shoppingList");
-
         shoppingListRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -113,6 +112,7 @@ public class ShoppingListActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Log.d("ItemClicker", "Selected an Item");
         if (item.getItemId() == R.id.action_cart) {
             // Navigate to ShoppingCartActivity
             Intent intent = new Intent(this, ShoppingCartActivity.class);
@@ -122,9 +122,11 @@ public class ShoppingListActivity extends AppCompatActivity {
         }
         if (item.getItemId() == R.id.purchase_cart) {
             // Navigate to PurchaseListActivity
+            Log.d("Navigation","Pressed purchases");
             Intent intent = new Intent(this, PurchaseListActivity.class);
-            intent.putExtra("purchaseList", purchaseList);
+         //   intent.putExtra("purchaseList", purchaseList);
             startActivity(intent);
+            Log.d("Navigation", "Starting activity");
             return true;
         }
         if (item.getItemId() == R.id.logout) {

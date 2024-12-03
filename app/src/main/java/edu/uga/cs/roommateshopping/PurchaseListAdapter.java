@@ -10,21 +10,22 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.List;
+
 public class PurchaseListAdapter extends RecyclerView.Adapter<PurchaseListAdapter.ViewHolder> {
 
     //  private final ArrayList<HashMap<String, String>> items;
     private final OnItemClickListener listener;
-    private final PurchaseList purchaseList;
+    private final List<PurchaseList> purchaseLists;
 
-    public PurchaseListAdapter(PurchaseList purchaseList, OnItemClickListener listener) {
-        this.purchaseList = purchaseList;
+    public PurchaseListAdapter(List<PurchaseList> purchaseList, OnItemClickListener listener) {
+        this.purchaseLists = purchaseList;
         this.listener = listener;
     }
 
     public interface OnItemClickListener {
         void onEdit(int position);
-        void onDelete(int position);
-        void onMarkAsPurchased(int position);
+        void onItemClick(PurchaseList purchaseList);
     }
 
 //    public ShoppingListAdapter(ArrayList<HashMap<String, String>> items, OnItemClickListener listener) {
@@ -36,54 +37,52 @@ public class PurchaseListAdapter extends RecyclerView.Adapter<PurchaseListAdapte
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.shopping_list_item, parent, false);
+                .inflate(R.layout.purchase_list_item, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        if (position < 0 || position >= purchaseList.getPurchaseListCount()) {
-            Log.e("PurchaseListAdapter", "Invalid position: " + position);
-            return;
-        }
-
-        // Get the current PurchaseList
-      //  PurchaseList purchase = purchaseList.getItems(position);
+        PurchaseList purchaseList = purchaseLists.get(position);
 
         // Display the PurchaseList's details
-        holder.itemName.setText(purchaseList.getListName());
-      //  holder.itemQuantity.setText(String.format("$%.2f", purchase.getTotal()));
+        holder.purchaseName.setText(purchaseList.getListName());
+        holder.purchasedBy.setText(purchaseList.getPurchasedBy());
+        holder.purchasePrice.setText(String.format("$%.2f", purchaseList.getTotal()));
+        Log.d("View", holder.toString() );
 
         // Set listeners for actions on the PurchaseList
         holder.editButton.setOnClickListener(v -> listener.onEdit(position));
-        holder.deleteButton.setOnClickListener(v -> listener.onDelete(position));
-        holder.moveToCartButton.setOnClickListener(v -> listener.onMarkAsPurchased(position)); // To show list details
+        holder.itemView.setOnClickListener(v -> listener.onItemClick(purchaseList));
     }
 
     @Override
-    public int getItemCount() {
-        return purchaseList.getItems() != null ? purchaseList.getItems().size() : 0;
+   public int getItemCount() {
+       return purchaseLists != null ? purchaseLists.size() : 0;
     }
 
-    public void addItem(ShoppingItem newItem) {
-        purchaseList.getItems().add(newItem);  // Add to the data source
-        notifyItemInserted(purchaseList.getItems().size() - 1);  // Notify adapter about the new item
-    }
+//    public void addItem(ShoppingItem newItem) {
+//        purchaseList.getItems().add(newItem);  // Add to he data source
+//        notifyItemInserted(purchaseList.getItems().size() - 1);  // Notify adapter about the new item
+//    }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        public TextView itemName;
-        public TextView itemQuantity;
+        public TextView purchaseName;
+        public TextView purchasePrice;
+        public TextView purchasedBy;
+
         public ImageButton editButton;
-        public ImageButton deleteButton;
-        public ImageButton moveToCartButton;
 
         public ViewHolder(View view) {
             super(view);
-            itemName = view.findViewById(R.id.itemName);
-            itemQuantity = view.findViewById(R.id.itemQuantity);
-            editButton = view.findViewById(R.id.editButton);
-            deleteButton = view.findViewById(R.id.deleteButton);
-            moveToCartButton = view.findViewById(R.id.moveToCartButton);
+            purchaseName = view.findViewById(R.id.purchaseName);
+            purchasePrice = view.findViewById(R.id.purchasePrice);
+            editButton = view.findViewById(R.id.purchaseEditItem);
+            purchasedBy = view.findViewById(R.id.purchasedBy);
+        }
+        public void bind(PurchaseList purchaseList, OnItemClickListener listener) {
+            purchaseName.setText(purchaseList.getListName());
+            itemView.setOnClickListener(v -> listener.onItemClick(purchaseList));
         }
     }
 }

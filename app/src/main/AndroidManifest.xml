@@ -13,7 +13,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.RoommateShopping"
-        android:enableOnBackInvokedCallback="true"
     tools:targetApi="31">
 
         <activity
@@ -43,6 +42,9 @@
             android:name=".PurchaseListActivity"
             android:theme="@style/Theme.RoommateShopping" />
 
+        <activity
+            android:name=".PurchaseItemsActivity"
+            android:theme="@style/Theme.RoommateShopping" />
     </application>
 
 </manifest>

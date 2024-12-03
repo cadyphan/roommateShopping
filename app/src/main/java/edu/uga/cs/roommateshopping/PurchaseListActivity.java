@@ -1,5 +1,6 @@
 package edu.uga.cs.roommateshopping;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -19,33 +20,32 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class PurchaseListActivity extends AppCompatActivity {
     private RecyclerView purchaseListRecyclerView;
-    private ShoppingListAdapter purchaseListAdapter;
-    private ShoppingList purchaseList;
+    private PurchaseListAdapter purchaseListAdapter;
+    private List<PurchaseList> purchaseLists;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d("PursedActivity", "Creating Purchase Activity");
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_shopping_cart);
+        setContentView(R.layout.activity_purchase_list);
 
-        purchaseList = (ShoppingList) getIntent().getSerializableExtra("purchaseList");
+        purchaseLists = new ArrayList<>();
         fetchPurchaseList();
-        purchaseListRecyclerView = findViewById(R.id.shoppingCartRecyclerView);
-        purchaseListAdapter = new ShoppingListAdapter(purchaseList, new ShoppingListAdapter.OnItemClickListener() {
+        purchaseListRecyclerView = findViewById(R.id.purchaseListRecycler);
+        purchaseListAdapter = new PurchaseListAdapter(purchaseLists, new PurchaseListAdapter.OnItemClickListener() {
             @Override
             public void onEdit(int position) {
                 showEditItemDialog(position);
             }
 
             @Override
-            public void onDelete(int position) {
-            //    deleteItemFromCart(position);
-            }
-
-            @Override
-            public void onMarkAsPurchased(int position) {
-                Toast.makeText(PurchaseListActivity.this, "Item is already in the cart.", Toast.LENGTH_SHORT).show();
+            public void onItemClick(PurchaseList purchaseList) {
+                navigateToPurchaseItems(purchaseList);
             }
         });
 
@@ -53,32 +53,48 @@ public class PurchaseListActivity extends AppCompatActivity {
         purchaseListRecyclerView.setAdapter(purchaseListAdapter);
     }
 
+
     private void showEditItemDialog(int position) {
-        ShoppingItem currentItem = purchaseList.getItems().get(position);
+        PurchaseList currentPurchaseList = purchaseLists.get(position);
 
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_edit_price, null);
-        EditText itemPriceEditText = dialogView.findViewById(R.id.editPriceEditText);
+        EditText totalPriceEditText = dialogView.findViewById(R.id.editPriceEditText);
 
-        itemPriceEditText.setText(currentItem.getPrice());
+        totalPriceEditText.setText(String.format("%.2f", currentPurchaseList.getTotal()));
      //   float currentPrice = currentItem.getTotal();
 
         new AlertDialog.Builder(this)
-                .setTitle("Edit Price")
+                .setTitle("Edit Total Price")
                 .setView(dialogView)
                 .setPositiveButton("Update", (dialog, which) -> {
-             //       String updatedQuantity = itemQuantityEditText.getText().toString().trim();
-                    String updatedPrice = itemPriceEditText.getText().toString().trim();
+                    String updatedPriceStr = totalPriceEditText.getText().toString().trim();
 
-//                    if (TextUtils.isEmpty(updatedQuantity)) {
-//                        Toast.makeText(this, "Quantity cannot be empty", Toast.LENGTH_SHORT).show();
-//                        return;
-//                    }
+                    if (!updatedPriceStr.isEmpty()) {
+                        try {
+                            // Parse the updated price and update the PurchaseList
+                            float updatedPrice = Float.parseFloat(updatedPriceStr);
+                            currentPurchaseList.setTotal(updatedPrice);
 
-            //        currentItem.setQuantity(updatedQuantity);
-                    currentItem.setPrice(updatedPrice.isEmpty() ? "0.00" : updatedPrice);
+                            // Update the database
+                            FirebaseDatabase database = FirebaseDatabase.getInstance();
+                            DatabaseReference purchaseRef = database.getReference("Purchases")
+                                    .child(currentPurchaseList.getKey()); // Use the unique key of the PurchaseList
 
-                    purchaseListAdapter.notifyItemChanged(position);
-                    Toast.makeText(this, "Item updated", Toast.LENGTH_SHORT).show();
+                            purchaseRef.setValue(currentPurchaseList).addOnCompleteListener(task -> {
+                                if (task.isSuccessful()) {
+                                    // Notify the adapter about the change
+                                    purchaseListAdapter.notifyItemChanged(position);
+                                    Toast.makeText(this, "Total price updated successfully!", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Toast.makeText(this, "Failed to update total price: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        } catch (NumberFormatException e) {
+                            Toast.makeText(this, "Invalid price format", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(this, "Price cannot be empty", Toast.LENGTH_SHORT).show();
+                    }
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
@@ -113,21 +129,21 @@ public class PurchaseListActivity extends AppCompatActivity {
 //    }
 
     private void fetchPurchaseList() {
-        DatabaseReference shoppingListRef = FirebaseDatabase.getInstance()
-                .getReference("PurchaseList");
+        DatabaseReference shoppingListRef = FirebaseDatabase.getInstance().getReference("Purchases");
 
         shoppingListRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                purchaseList.getItems().clear(); // Clear the current list
-                for (DataSnapshot itemSnapshot : snapshot.getChildren()) {
-                    ShoppingItem item = itemSnapshot.getValue(ShoppingItem.class);
-                    if (item != null) {
-                        item.setKey(itemSnapshot.getKey());
-                        Log.d("keys: ", item.getKey()); // Set the Firebase key
-                        purchaseList.getItems().add(item);
+            purchaseLists.clear();
+            for (DataSnapshot purchaseSnapshot : snapshot.getChildren()) {
+                    PurchaseList purchaseList = purchaseSnapshot.getValue(PurchaseList.class);
+                    if (purchaseList != null) {
+                        purchaseList.setKey(purchaseSnapshot.getKey()); // Set the Firebase key
+                        Log.d("PurchaseList", "Loaded: " + purchaseList.getListName() + " | Key: " + purchaseList.getKey());
+                        purchaseLists.add(purchaseList); // Add to the local list
                     }
                 }
+                Log.d("PurchaseListSize", "Size: " + purchaseLists.size());
                 purchaseListAdapter.notifyDataSetChanged(); // Update RecyclerView
             }
 
@@ -136,5 +152,11 @@ public class PurchaseListActivity extends AppCompatActivity {
                 Toast.makeText(PurchaseListActivity.this, "Failed to load data: " + error.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void navigateToPurchaseItems(PurchaseList selectedPurchaseList) {
+        Intent intent = new Intent(PurchaseListActivity.this, PurchaseItemsActivity.class);
+        intent.putExtra("purchaseListKey", selectedPurchaseList.getKey()); // Pass the key of the selected list
+        startActivity(intent);
     }
 }

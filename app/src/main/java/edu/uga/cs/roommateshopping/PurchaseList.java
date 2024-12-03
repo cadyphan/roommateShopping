@@ -49,9 +49,7 @@ public class PurchaseList implements Serializable {
     public float getTotal () {return total;}
 
     public void setTotal (float total) { this.total = total;}
-
-    public List<ShoppingItem> getItems() { return purchaseList; }
-
+    
     public int getPurchaseListCount () {return purchaseList.size();}
 
 }
