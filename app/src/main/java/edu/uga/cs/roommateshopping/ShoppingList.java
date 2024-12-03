@@ -50,7 +50,7 @@ public class ShoppingList implements Serializable {
             if (task.isSuccessful()) {
                 // Update local list and adapter
                 Log.d("ShoppingList", "Removed Item from database");
-                list.getItems().remove(position);
+           //     list.getItems().remove(position);
                 Log.d("ShoppingList", "Removed Item locally");
                 adapter.notifyItemRemoved(position);
                 Log.d("ShoppingList", "Notified adapter");
@@ -83,7 +83,7 @@ public class ShoppingList implements Serializable {
         itemRef.removeValue().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 // Update local list and adapter
-                list.getItems().remove(position);
+             //   list.getItems().remove(position);
                 Toast.makeText(context, "Item deleted successfully!", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(context, "Failed to delete item: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
