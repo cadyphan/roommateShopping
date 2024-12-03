@@ -28,11 +28,6 @@ public class PurchaseListAdapter extends RecyclerView.Adapter<PurchaseListAdapte
         void onItemClick(PurchaseList purchaseList);
     }
 
-//    public ShoppingListAdapter(ArrayList<HashMap<String, String>> items, OnItemClickListener listener) {
-//        this.items = items;
-//        this.listener = listener;
-//    }
-
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -49,6 +44,7 @@ public class PurchaseListAdapter extends RecyclerView.Adapter<PurchaseListAdapte
         holder.purchaseName.setText(purchaseList.getListName());
         holder.purchasedBy.setText(purchaseList.getPurchasedBy());
         holder.purchasePrice.setText(String.format("$%.2f", purchaseList.getTotal()));
+        holder.purchaseDate.setText(purchaseList.getDate());
         Log.d("View", holder.toString() );
 
         // Set listeners for actions on the PurchaseList
@@ -70,6 +66,7 @@ public class PurchaseListAdapter extends RecyclerView.Adapter<PurchaseListAdapte
         public TextView purchaseName;
         public TextView purchasePrice;
         public TextView purchasedBy;
+        public TextView purchaseDate;
 
         public ImageButton editButton;
 
@@ -79,6 +76,7 @@ public class PurchaseListAdapter extends RecyclerView.Adapter<PurchaseListAdapte
             purchasePrice = view.findViewById(R.id.purchasePrice);
             editButton = view.findViewById(R.id.purchaseEditItem);
             purchasedBy = view.findViewById(R.id.purchasedBy);
+            purchaseDate = view.findViewById(R.id.purchaseDate);
         }
         public void bind(PurchaseList purchaseList, OnItemClickListener listener) {
             purchaseName.setText(purchaseList.getListName());

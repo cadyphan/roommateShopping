@@ -22,6 +22,11 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+
 public class ShoppingCartActivity extends AppCompatActivity {
 
     private RecyclerView shoppingCartRecyclerView;
@@ -182,7 +187,8 @@ public class ShoppingCartActivity extends AppCompatActivity {
         DatabaseReference cartRef = FirebaseDatabase.getInstance().getReference("ShoppingBasket").child("basketList");
 
         String userEmail = currentUser.getEmail(); // Optional: User's email
-        long timestamp = System.currentTimeMillis(); // Timestamp for the purchase
+        String date = new SimpleDateFormat("MM-dd-yyyy", Locale.getDefault()).format(new Date());
+
 
         if (shoppingBasket.getItems().isEmpty()) {
             Toast.makeText(this, "Cart is empty. Nothing to checkout.", Toast.LENGTH_SHORT).show();
@@ -209,17 +215,11 @@ public class ShoppingCartActivity extends AppCompatActivity {
                 String purchaseName = "Purchase " + purchaseNumber;
 
                 // Create a new PurchaseList object
-                PurchaseList purchaseList = new PurchaseList(shoppingBasket.getItems(), userEmail, purchaseName, finalTotalPrice);
+                PurchaseList purchaseList = new PurchaseList(shoppingBasket.getItems(), userEmail, purchaseName, finalTotalPrice, date);
                 String purchaseKey = purchasesRef.push().getKey(); // Generate a unique key
                 purchaseList.setKey(purchaseKey);
-                Log.d("Purcahse key: ", purchaseKey);
+                Log.d("Purchase key: ", purchaseKey);
 
-                for (ShoppingItem item : purchaseList.getPurchaseList()) {
-                    String itemKey = purchasesRef.child(purchaseKey).child("purchaseList").push().getKey();
-                    Log.d("Itemkey: ", itemKey);
-                    item.setKey(itemKey); // Set the unique key for the item
-                    Log.d("item after", item.toString());
-                }
                 // Store the purchase in Firebase
                 purchasesRef.child(purchaseKey).setValue(purchaseList)
                         .addOnCompleteListener(purchaseTask -> {
@@ -241,48 +241,6 @@ public class ShoppingCartActivity extends AppCompatActivity {
                         });
             } else {
                 Toast.makeText(this, "Failed to fetch purchases: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-
-    private void changeName(PurchaseList purchaseList) {
-        DatabaseReference purchaseListRef = FirebaseDatabase.getInstance()
-                .getReference("Purchases")
-                .child(purchaseList.getKey())
-                .child("purchaseList");
-
-        purchaseListRef.get().addOnCompleteListener(task -> {
-            if (task.isSuccessful() && task.getResult() != null) {
-                for (DataSnapshot snapshot : task.getResult().getChildren()) {
-                    String numberedKey = snapshot.getKey(); // The numbered reference (e.g., "0", "1")
-                    Log.d("Numbered key: ", numberedKey);
-                    ShoppingItem item = snapshot.getValue(ShoppingItem.class);
-
-
-                    String newKey = item.getKey(); // Set the new key (e.g., item.getKey())
-                    Log.d("new key: ", newKey);
-
-                    DatabaseReference newItemRef = purchaseListRef.child(newKey);
-                    newItemRef.setValue(item)
-                            .addOnCompleteListener(writeTask -> {
-                                if (writeTask.isSuccessful()) {
-                                // Remove the old numbered reference
-                                     purchaseListRef.child(numberedKey).removeValue()
-                                        .addOnCompleteListener(removeTask -> {
-                                            if (removeTask.isSuccessful()) {
-                                                Log.d("FirebaseUpdate", "Updated reference: " + numberedKey + " -> " + newKey);
-                                            } else {
-                                                Log.e("FirebaseUpdate", "Failed to remove old reference: " + removeTask.getException().getMessage());
-                                            }
-                                        });
-                            } else {
-                                Log.e("FirebaseUpdate", "Failed to write new key: " + writeTask.getException().getMessage());
-                            }
-                        });
-                }
-            } else {
-                Log.e("FirebaseUpdate", "Failed to fetch purchaseList: " + task.getException().getMessage());
             }
         });
     }

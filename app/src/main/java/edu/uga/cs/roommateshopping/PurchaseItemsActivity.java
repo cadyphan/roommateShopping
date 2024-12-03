@@ -89,7 +89,7 @@ public class PurchaseItemsActivity extends AppCompatActivity {
                 .getReference("Purchases")
                 .child(purchaseListKey)
                 .child("purchaseList")
-                .child(itemKey);
+                .child(String.valueOf(position));
 
         Log.d("Item Ref before: ", itemRef.toString());
         itemRef.removeValue();
