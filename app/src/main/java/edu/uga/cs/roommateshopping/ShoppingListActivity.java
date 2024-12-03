@@ -51,9 +51,7 @@ public class ShoppingListActivity extends AppCompatActivity {
         if (shoppingBasket == null) {
             shoppingBasket = new ShoppingList();
         }
-//        if (purchaseList == null) {
-//            purchaseList = new ShoppingList();
-//        }
+
         fetchShoppingList();
         // Set up RecyclerView for shopping list
         shoppingListAdapter = new ShoppingListAdapter(shoppingList, new ShoppingListAdapter.OnItemClickListener() {
@@ -80,6 +78,7 @@ public class ShoppingListActivity extends AppCompatActivity {
     }
 
     private void fetchShoppingList() {
+        Log.d("ShoppingList", "Calling FetchShoppingList");
         DatabaseReference shoppingListRef = FirebaseDatabase.getInstance()
                 .getReference("ShoppingList").child("shoppingList");
         shoppingListRef.addValueEventListener(new ValueEventListener() {
@@ -90,7 +89,7 @@ public class ShoppingListActivity extends AppCompatActivity {
                     ShoppingItem item = itemSnapshot.getValue(ShoppingItem.class);
                     if (item != null) {
                         item.setKey(itemSnapshot.getKey());
-                        Log.d("Fetch keys: ", item.getKey()); // Set the Firebase key
+                        Log.d("Fetch keys from fetch ShoppingList: ", item.getKey()); // Set the Firebase key
                         shoppingList.getItems().add(item);
                     }
                 }
@@ -175,13 +174,6 @@ public class ShoppingListActivity extends AppCompatActivity {
                         Toast.makeText(this, "Item name cannot be empty", Toast.LENGTH_SHORT).show();
                         return;
                     }
-
-//                    HashMap<String, String> newItem = new HashMap<>();
-//                    newItem.put("name", itemName);
-//                    newItem.put("quantity", itemQuantity.isEmpty() ? "1" : itemQuantity);
-//                    newItem.put("price", ""); // Default price
-
-//                    shoppingList.add(newItem);
 
                     ShoppingItem newShoppingItem = new ShoppingItem(itemName, itemQuantity, itemPrice.isEmpty() ? "" : itemPrice);
                     // Check if the item already exists locally

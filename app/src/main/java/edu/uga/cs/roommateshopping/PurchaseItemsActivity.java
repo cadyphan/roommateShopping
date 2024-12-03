@@ -39,14 +39,12 @@ public class PurchaseItemsActivity extends AppCompatActivity {
                 moveToList(position);
             }
         });
-
         purchaseItemsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         purchaseItemsRecyclerView.setAdapter(purchaseItemsAdapter);
-
-
     }
 
     private void fetchPurchaseItems(String purchaseListKey) {
+        Log.d("FetchPurchaseItems", "Fetching");
         DatabaseReference purchaseItemsRef = FirebaseDatabase.getInstance()
                 .getReference("Purchases")
                 .child(purchaseListKey)
@@ -105,6 +103,7 @@ public class PurchaseItemsActivity extends AppCompatActivity {
                     Toast.makeText(this, "Failed to remove item: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
+
     private void moveToList(int position) {
         if (position < 0 || position >= purchaseItems.getItems().size()) {
             Toast.makeText(this, "Invalid item position", Toast.LENGTH_SHORT).show();
@@ -122,68 +121,22 @@ public class PurchaseItemsActivity extends AppCompatActivity {
 
         String shoppingListID = "shoppingList";
 
-        // Firebase references for source and target lists
+        // Firebase reference for the target list
         DatabaseReference shoppingListRef = FirebaseDatabase.getInstance()
                 .getReference("ShoppingList")
                 .child(shoppingListID);
-        DatabaseReference purchaseListRef = FirebaseDatabase.getInstance()
-                .getReference("Purchases")
-                .child(purchaseListKey)
-                .child("purchaseList")
-                .child(itemKey);
 
-        Log.d("PurchaseListRef: ", purchaseListRef.toString());
-        // Add to the target list
         shoppingListRef.push().setValue(shoppingItem)
                 .addOnSuccessListener(aVoid -> {
-                    // Delete the item from the purchase list after successful addition
-                    purchaseListRef.removeValue()
-                            .addOnSuccessListener(innerVoid -> {
-                                // Remove from local list and update RecyclerView
-                                purchaseItems.getItems().remove(position);
-                                purchaseItemsAdapter.notifyItemRemoved(position);
-                                Toast.makeText(this, "Item moved to shopping list", Toast.LENGTH_SHORT).show();
-                            })
-                            .addOnFailureListener(e -> {
-                                Log.e("PurchaseItemsActivity", "Failed to remove item from purchase list: " + e.getMessage());
-                                Toast.makeText(this, "Failed to remove item from purchase list", Toast.LENGTH_SHORT).show();
-                            });
+                    Log.d("PurchaseItemsActivity:", "shoppinglist pushed and trying to delete");
+
+                    // After successfully adding to the shopping list, delete from the purchase list
+                    deleteItemFromCart(position);
+                    Toast.makeText(this, "Item moved to shopping list", Toast.LENGTH_SHORT).show();
                 })
                 .addOnFailureListener(e -> {
                     Log.e("PurchaseItemsActivity", "Failed to add item to shopping list: " + e.getMessage());
                     Toast.makeText(this, "Failed to move item: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
-//    private void moveToList(int position) {
-//        String shoppingListID = "shoppingList";
-//        ShoppingItem shoppingItem = purchaseItems.getItems().get(position);
-//
-//        FirebaseDatabase db = FirebaseDatabase.getInstance();
-//        DatabaseReference shoppingListRef = FirebaseDatabase.getInstance()
-//                .getReference("ShoppingList")
-//                .child(shoppingListID);
-//        DatabaseReference purchaseListRef = FirebaseDatabase.getInstance()
-//                .getReference("Purchases")
-//                .child(purchaseListKey)
-//                .child(shoppingItem.getKey());
-//
-//        shoppingListRef.push().setValue(shoppingItem)
-//            .addOnSuccessListener(aVoid -> {
-//                // Delete the item from the purchase list after adding successfully
-//                deleteItemFromCart(position);
-//                Toast.makeText(this, "Item moved to cart", Toast.LENGTH_SHORT).show();
-//            })
-//                .addOnFailureListener(e -> {
-//                    Log.e("PurchaseItemsActivity", "Failed to add item to shopping list: " + e.getMessage());
-//                    Toast.makeText(this, "Failed to move item: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-//                });
-//        Toast.makeText(this, "Item moved to cart", Toast.LENGTH_SHORT).show();
-//    }
-
-//    private void deleteItemFromCart(int position) {
-//        String listID = purchaseListKey;
-//        purchaseItems.deleteShoppingItem(listID, position, purchaseItemsAdapter, this, purchaseItems);
-//        purchaseItemsAdapter.notifyItemRemoved(position);
-//        Toast.makeText(this, "Item removed from cart", Toast.LENGTH_SHORT).show();
-//    }
 }
