@@ -129,6 +129,11 @@ public class ShoppingListActivity extends AppCompatActivity {
             Log.d("Navigation", "Starting activity");
             return true;
         }
+        if (item.getItemId() == R.id.settle_costs) {
+            Intent intent = new Intent(this, SettleCostsActivity.class);
+            startActivity(intent);
+            return true;
+        }
         if (item.getItemId() == R.id.logout) {
             // Navigate to PurchaseListActivity
             FirebaseAuth mAuth = FirebaseAuth.getInstance();

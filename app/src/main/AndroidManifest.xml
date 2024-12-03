@@ -45,6 +45,8 @@
         <activity
             android:name=".PurchaseItemsActivity"
             android:theme="@style/Theme.RoommateShopping" />
+        <activity android:name=".SettleCostsActivity" />
+
     </application>
 
 </manifest>

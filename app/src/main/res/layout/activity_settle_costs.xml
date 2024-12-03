@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="#071108">
+
+    <!-- Title -->
+    <TextView
+        android:id="@+id/settleCostsTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Settle Costs"
+        android:textColor="#BFB1C1"
+        android:textSize="24sp"
+        android:gravity="center"
+        android:paddingBottom="16dp"
+        android:textStyle="bold" />
+
+    <!-- Total Purchases -->
+    <TextView
+        android:id="@+id/totalPurchasesTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Total for all purchases:"
+        android:textColor="#BFB1C1"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:paddingBottom="4dp" />
+
+    <TextView
+        android:id="@+id/totalPurchasesValue"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="$0.00"
+        android:textColor="#B5BEC6"
+        android:textSize="18sp"
+        android:paddingBottom="16dp" />
+
+    <!-- Money Spent by Roommates -->
+    <TextView
+        android:id="@+id/moneySpentByRoommatesTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Money spent by each roommate:"
+        android:textColor="#BFB1C1"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:paddingBottom="4dp" />
+
+    <TextView
+        android:id="@+id/moneySpentValue"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Roommate details here..."
+        android:textColor="#B5BEC6"
+        android:textSize="16sp"
+        android:paddingBottom="16dp" />
+
+    <!-- Average Spent -->
+    <TextView
+        android:id="@+id/averageSpentTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Average amount spent:"
+        android:textColor="#BFB1C1"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:paddingBottom="4dp" />
+
+    <TextView
+        android:id="@+id/averageSpentValue"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="$0.00"
+        android:textColor="#B5BEC6"
+        android:textSize="16sp"
+        android:paddingBottom="16dp" />
+
+    <!-- Difference Display -->
+    <TextView
+        android:id="@+id/differencesTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Difference between average and spent by roommate:"
+        android:textColor="#BFB1C1"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:paddingBottom="4dp" />
+
+    <TextView
+        android:id="@+id/differencesValue"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Roommate differences here..."
+        android:textColor="#B5BEC6"
+        android:textSize="16sp"
+        android:paddingBottom="16dp" />
+
+    <!-- Clear All Purchases Button -->
+    <Button
+        android:id="@+id/clearPurchasesButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Clear All Purchases"
+        android:textColor="#071108"
+        android:backgroundTint="#BFB1C1"
+        android:textStyle="bold"
+        android:padding="12dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="8dp" />
+
+</LinearLayout>
