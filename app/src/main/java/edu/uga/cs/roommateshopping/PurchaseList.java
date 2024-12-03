@@ -10,6 +10,7 @@ public class PurchaseList implements Serializable {
     private String name;
     private String key;
     private float total;
+    private String date;
 
     public PurchaseList() {
         this.purchaseList = new ArrayList<>();
@@ -17,14 +18,16 @@ public class PurchaseList implements Serializable {
         this.name = null;
         this.key = null;
         this.total = 0;
+        this.date = null;
     }
 
-    public PurchaseList(List<ShoppingItem> shoppingList, String purchasedBy, String name, float total) {
+    public PurchaseList(List<ShoppingItem> shoppingList, String purchasedBy, String name, float total, String date) {
         this.purchaseList = shoppingList;
         this.purchasedBy = purchasedBy;
         this.name = name;
         this.key = null;
         this.total = total;
+        this.date = date;
     }
 
     public void setPurchaseList(List<ShoppingItem> shoppingList) {
@@ -53,4 +56,5 @@ public class PurchaseList implements Serializable {
     
     public int getPurchaseListCount () {return purchaseList.size();}
 
+    public String getDate() {return date;}
 }
