@@ -281,21 +281,10 @@ public class ShoppingListActivity extends AppCompatActivity {
     }
 
     private void deleteItemFromShoppingList(int position) {
-        ShoppingItem itemToDelete = shoppingList.getItems().get(position);
-        DatabaseReference itemRef = FirebaseDatabase.getInstance()
-                .getReference("ShoppingList")
-                .child("shoppingList")
-                .child(itemToDelete.getKey());
-
-        itemRef.removeValue().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                shoppingList.getItems().remove(position); // Remove from local list
-                shoppingListAdapter.notifyItemRemoved(position); // Update adapter
-                Toast.makeText(this, "Item removed from shopping list", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(this, "Failed to delete item: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
+        String listID = "shoppingList";
+        String refID = "ShoppingList";
+        shoppingList.deleteShoppingItem(refID, listID, position, shoppingListAdapter, this, shoppingList);
+        Toast.makeText(this, "Item removed from cart", Toast.LENGTH_SHORT).show();
     }
 
     private void moveToCart(int position) {
