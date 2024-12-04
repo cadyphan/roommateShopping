@@ -252,8 +252,8 @@ public class ShoppingListActivity extends AppCompatActivity {
                     }
 
                     currentItem.setItem(updatedName);
-                    currentItem.setQuantity(updatedQuantity.isEmpty() ? "1" : updatedQuantity);
-                    currentItem.setPrice(updatedPrice.isEmpty() ? "0" : updatedPrice);
+                    currentItem.setQuantity(updatedQuantity.isEmpty() ? currentItem.getQuantity() : updatedQuantity);
+                    currentItem.setPrice(updatedPrice.isEmpty() ? currentItem.getPrice() : updatedPrice);
 
                     FirebaseDatabase database = FirebaseDatabase.getInstance();
                     DatabaseReference itemRef = database.getReference("ShoppingList")

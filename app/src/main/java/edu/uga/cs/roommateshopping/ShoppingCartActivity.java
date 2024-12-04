@@ -137,7 +137,7 @@ public class ShoppingCartActivity extends AppCompatActivity {
         String listID = "basketList";
         String refID = "ShoppingBasket";
         shoppingBasket.deleteShoppingItem(refID, listID, position, shoppingCartAdapter, this, shoppingBasket);
-        shoppingCartAdapter.notifyItemRemoved(position);
+   //     shoppingCartAdapter.notifyItemRemoved(position);
         Toast.makeText(this, "Item removed from cart", Toast.LENGTH_SHORT).show();
     }
 
